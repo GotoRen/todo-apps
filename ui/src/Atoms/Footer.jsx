@@ -24,7 +24,7 @@ const Footer = () => {
         &copy; {new Date().getFullYear()} Ren Goto. All rights reserved. <br />
       </FooterText>
       <FooterText href="https://reactjs.org/">
-        {` 🔨 `} Powered by React.js ver 18.2
+        {` 🔨 `} Powered by React.js ver 16.14
       </FooterText>
     </FooterComponent>
   );
