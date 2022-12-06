@@ -1,0 +1,75 @@
+version: "3.8"
+
+name: todo-apps
+
+services:  
+  ui:
+    build:
+      context: ./ui
+      dockerfile: ./Dockerfile
+    container_name: apps-ui
+    privileged: true
+    restart: always
+    tty: true
+    env_file:
+      - ./ui/.env
+    ports:
+      - mode: ingress
+        target: 3000
+        published: "3000"
+        protocol: tcp
+
+  api:
+    build:
+      context: ./api
+      dockerfile: ./Dockerfile
+    container_name: apps-api
+    depends_on:
+      db:
+        condition: service_started
+    privileged: true
+    restart: always
+    tty: true
+    env_file:
+      - ./api/.env.docker
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8080"
+        protocol: tcp
+
+  db:
+    build:
+      context: ./db
+      dockerfile: ./Dockerfile
+    container_name: apps-db
+    privileged: true
+    restart: always
+    tty: true
+    volumes:
+      - type: bind
+        source: ./db/data
+        target: /var/lib/mysql
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./db/init.d
+        target: /docker-entrypoint-initdb.d
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./db/my.cnf
+        target: /etc/mysql/conf.d/my.cnf
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./db/access.cnf
+        target: /home/access.cnf
+        bind:
+          create_host_path: true
+    env_file:
+      - ./db/.env
+    ports:
+      - mode: ingress
+        target: 3306
+        protocol: tcp
