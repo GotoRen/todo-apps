@@ -45,3 +45,7 @@ $ docker login
 $ docker push ren1007/todo-apps-ui:v1
 $ docker push ren1007/todo-apps-api:v1
 ```
+
+## Compose v2
+- https://zenn.dev/miroha/articles/whats-docker-compose-v2
+- https://github.com/compose-spec/compose-spec/blob/master/spec.md#version-top-level-element
