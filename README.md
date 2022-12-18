@@ -34,7 +34,7 @@ $ docker tag 6ecb4f9cf926 ren1007/todo-apps-api:v1.0
 
 ### 再度 Dockerイメージを確認
 $ docker images | grep todo-apps- | grep v1.0
-REPOSITORY                           TAG       IMAGE ID       CREATED          SIZE
+REPOSITORY                           TAG       IMAGE ID       CREATED         SIZE
 ren1007/todo-apps-ui                 v1.0      ef1d01f978b3   5 minutes ago   124MB
 ren1007/todo-apps-api                v1.0      6ecb4f9cf926   7 minutes ago   17.8MB
 
