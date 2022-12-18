@@ -4,8 +4,8 @@
 ## After git cloning you should run
 ```
 ### api
-$ cp api/.env{.sample,}
 $ cp api/.env.docker{.sample,}
+$ cp api/.envrc{.sample,}
 
 ### ui
 $ cp ui/.env{.sample,}
@@ -23,27 +23,27 @@ $ make
 ```
 ### Dockerイメージを確認
 $ docker images | grep todo-apps-
-REPOSITORY                           TAG       IMAGE ID       CREATED         SIZE
-todo-apps-ui                         latest    ab4704be53e8   6 minutes ago   123MB
-todo-apps-api                        latest    fd738cde1aa6   8 minutes ago   18.3MB
-todo-apps-db                         latest    50b222f7759d   42 hours ago    538MB
+REPOSITORY      TAG       IMAGE ID       CREATED         SIZE
+todo-apps-ui    latest    ef1d01f978b3   3 minutes ago   124MB
+todo-apps-api   latest    6ecb4f9cf926   5 minutes ago   17.8MB
+todo-apps-db    latest    3a5c0bb06443   11 days ago     538MB
 
 ### イメージ名とTAG名を変更
-$ docker tag ab4704be53e8 ren1007/todo-apps-ui:v1
-$ docker tag fd738cde1aa6 ren1007/todo-apps-api:v1
+$ docker tag ef1d01f978b3 ren1007/todo-apps-ui:v1.0
+$ docker tag 6ecb4f9cf926 ren1007/todo-apps-api:v1.0
 
 ### 再度 Dockerイメージを確認
-$ docker images | grep todo-apps- | grep v1
+$ docker images | grep todo-apps- | grep v1.0
 REPOSITORY                           TAG       IMAGE ID       CREATED          SIZE
-ren1007/todo-apps-ui                 v1        ab4704be53e8   12 minutes ago   123MB
-ren1007/todo-apps-api                v1        fd738cde1aa6   14 minutes ago   18.3MB
+ren1007/todo-apps-ui                 v1.0      ef1d01f978b3   5 minutes ago   124MB
+ren1007/todo-apps-api                v1.0      6ecb4f9cf926   7 minutes ago   17.8MB
 
 ### DockerHub にログイン
 $ docker login
 
 ### イメージをアップロード
-$ docker push ren1007/todo-apps-ui:v1
-$ docker push ren1007/todo-apps-api:v1
+$ docker push ren1007/todo-apps-ui:v1.0
+$ docker push ren1007/todo-apps-api:v1.0
 ```
 
 ## Compose v2
