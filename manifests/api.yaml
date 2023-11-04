@@ -1,0 +1,71 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apps-api
+  namespace: sample-apps
+spec:
+  selector:
+    matchLabels:
+      app: apps-api
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: apps-api
+    spec:
+      containers:
+        - name: api
+          image: ren1007/todo-apps-api:v1.0
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "0.4"
+            requests:
+              memory: "256Mi"
+              cpu: "0.2"
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: apps-api-env-conf
+            - secretRef:
+                name: apps-api-env-secret
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apps-api-env-conf
+  namespace: sample-apps
+data:
+  DB_HOST: "apps-db-svc.sample-apps.svc.cluster.local"
+  DB_DATABASE: "sample"
+  HOST_NAME: "api.local.todoapps.dev"
+  DEBUG_MODE: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: apps-api-env-secret
+  namespace: sample-apps
+type: Opaque
+data:
+  DB_USER: cmVuNTEwZGV2
+  DB_PASSWORD: cmVucmVu
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apps-api-svc
+  namespace: sample-apps
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.10.10.73
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: apps-api

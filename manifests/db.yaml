@@ -1,0 +1,194 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: apps-db
+  namespace: sample-apps
+spec:
+  selector:
+    matchLabels:
+      app: apps-db
+  serviceName: "apps-db"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: apps-db
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:10.10
+          imagePullPolicy: Always
+          ports:
+            - name: mysql
+              containerPort: 3306
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "0.4"
+            requests:
+              memory: "256Mi"
+              cpu: "0.2"
+          envFrom:
+            - configMapRef:
+                name: apps-db-env-conf
+            - secretRef:
+                name: apps-db-env-secret
+          volumeMounts:
+            - name: db-initialize
+              mountPath: /docker-entrypoint-initdb.d
+            - name: db-conf
+              mountPath: /etc/mysql/conf.d
+      volumes:
+        - name: db-initialize
+          projected:
+            sources:
+              - configMap:
+                  name: db-ddl-config
+              - configMap:
+                  name: db-dml-config
+        - name: db-conf
+          configMap:
+            name: db-conf-config
+      terminationGracePeriodSeconds: 10
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        name: mariadb-pvc
+        namespace: sample-apps
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: "mariadb-storage-class"
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apps-db-env-conf
+  namespace: sample-apps
+data:
+  LANG: "C.UTF-8"
+  TZ: "Asia/Tokyo"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-ddl-config
+  namespace: sample-apps
+data:
+  todoapps-ddl.sql: |
+    CREATE DATABASE IF NOT EXISTS `sample`;
+    GRANT ALL ON sample.* TO ren510dev;
+
+    USE `sample`;
+
+    CREATE TABLE IF NOT EXISTS `todos` (
+      `id` INT NOT NULL AUTO_INCREMENT,
+      `name` VARCHAR(255) NOT NULL,
+      `is_done` BOOLEAN NOT NULL DEFAULT 0,
+      `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY(`id`)
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-dml-config
+  namespace: sample-apps
+data:
+  todoapps-dml.sql: |
+    USE `sample`;
+
+    INSERT INTO
+        todos(`name`, `is_done`, `created_at`, `updated_at`) VALUE(
+            'cyphonic-cloud',
+            true,
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        );
+    INSERT INTO
+        todos(`name`, `is_done`, `created_at`, `updated_at`) VALUE(
+            'cyphonic-adapter',
+            false,
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        );
+    INSERT INTO
+        todos(`name`, `is_done`, `created_at`, `updated_at`) VALUE(
+            'stardust',
+            true,
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        );
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-conf-config
+  namespace: sample-apps
+data:
+  my.cnf: |
+    [mysqld]
+    character-set-server = utf8mb4
+    collation-server = utf8mb4_bin
+
+    [client]
+    default-character-set = utf8mb4
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: apps-db-env-secret
+  namespace: sample-apps
+type: Opaque
+data:
+  MYSQL_USER: cmVuNTEwZGV2
+  MYSQL_PASSWORD: cmVucmVu
+  MYSQL_ROOT_PASSWORD: cGFzc3dvcmQ=
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apps-db-svc
+  namespace: sample-apps
+spec:
+  type: ClusterIP
+  ports:
+    - name: mysql
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+  selector:
+    app: apps-db
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: mariadb-storage-class
+provisioner: kubernetes.io/no-provisioner
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+mountOptions:
+  - debug
+volumeBindingMode: Immediate
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: mariadb-pv
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: mariadb-storage-class
+  hostPath:
+    path: "/mnt/data"
+  persistentVolumeReclaimPolicy: Delete
