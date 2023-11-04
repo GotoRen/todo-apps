@@ -306,11 +306,6 @@ go.work
 # binary
 main
 
-# env
-.env
-.env.docker
-.envrc
-
 # artifacts
 db/data
 ui/build

@@ -1,25 +1,15 @@
 # todo-apps: Sample application for Kubernetes
+
 - React.js+Golang API sample.
 
-## After git cloning you should run
-```
-### api
-$ cp api/.env.docker{.sample,}
-$ cp api/.envrc{.sample,}
+## Run Locally
 
-### ui
-$ cp ui/.env{.sample,}
-
-### db
-$ cp db/.env{.sample,}
-```
-
-## Boot command
 ```
 $ make
 ```
 
 ## Upload Docker image
+
 ```
 ### Dockerイメージを確認
 $ docker images | grep todo-apps-
@@ -47,5 +37,6 @@ $ docker push ren1007/todo-apps-api:v1.0
 ```
 
 ## Compose v2
+
 - https://zenn.dev/miroha/articles/whats-docker-compose-v2
 - https://github.com/compose-spec/compose-spec/blob/master/spec.md#version-top-level-element
