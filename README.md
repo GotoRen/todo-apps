@@ -4,13 +4,13 @@
 
 ## Run Locally
 
-```
+```shell
 $ make
 ```
 
 ## Upload Docker image
 
-```
+```shell
 ### Dockerイメージを確認
 $ docker images | grep todo-apps-
 REPOSITORY      TAG       IMAGE ID       CREATED         SIZE
